@@ -1,11 +1,56 @@
-<div align="center">
+# بيت الصحافة - منصة المؤسسة الموحدة (PressHouse Enterprise Platform)
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+منصة رقمية مؤسسية متكاملة خاصة بمؤسسة **بيت الصحافة (Yemen - PressHouse)**، لإدارة الأنشطة الإعلامية، مرصد الحريات الصحفية، النادي السينمائي، دورات الأكاديمية، العضويات والصحفيين، والمشاريع والمناقصات.
 
-  <h1>Built with AI Studio</h2>
+---
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+## 🚀 المميزات الرئيسية
+- **بنية هندسية موحدة (Modular Monolith)**: محرك وسيرفر موحد يربط كافة الوحدات والواجهات البرمجية (Express + React 19 + Vite).
+- **التوافق الكامل مع Debian 13 (Trixie)**: سكريبتات تثبيت ونشر وتحديث تلقائية مخصصة لسيرفرات Debian 13.
+- **دعم الأمان والربط المتكامل**: أمان عالي مع تشفير البيانات وتكامل مفاتيح الذكاء الاصطناعي (Gemini / NVIDIA / OpenAI).
+- **النسخ الاحتياطي الدوري المعتمد**: اسكريبتات آلية للنسخ الاحتياطي لقاعدة البيانات SQLite/MySQL والمرفقات في مسار `/Data/presshouse`.
+- **دعم اللغة العربية والاتجاه (RTL/LTR)**: واجهات ثنائية اللغة متكاملة عبر `i18next`.
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+---
 
-</div>
+## 💻 التثبيت السريع على Debian 13 (Quick Deployment)
+
+لتثبيت المنصة مباشرة على سيرفر **Debian 13**:
+
+```bash
+# 1. الاستنساخ إلى المسار المعتمد
+mkdir -p /Data/presshouse
+cd /Data/presshouse
+git clone <repository_url> .
+
+# 2. تشغيل اسكريبت التثبيت التلقائي الشامل
+chmod +x scripts/install-debian13.sh
+./scripts/install-debian13.sh
+```
+
+---
+
+## 📜 الأوامر والاسكريبتات المتاحة (Scripts & Commands)
+
+| الأمر | الوصف |
+| :--- | :--- |
+| `npm run dev` | تشغيل سيرفر التطوير التفاعلي المحلي |
+| `npm run setup` | معالج الإعداد التفاعلي لتوليد المفاتيح وإنشاء `.env` |
+| `npm run build` | بناء نسخة الإنتاج الخاصة بالواجهة الأمامية والخلفية |
+| `npm start` | تشغيل سيرفر الإنتاج في بيئة Production |
+| `./scripts/install-debian13.sh` | اسكريبت التثبيت الآلي المكتمل لسيرفر Debian 13 |
+| `./scripts/update-debian13.sh` | اسكريبت التحديث والتأكد من إعادة التحميل دون توقف الخدمة |
+| `./scripts/backup-debian13.sh` | اسكريبت النسخ الاحتياطي الآلي لقواعد البيانات والمرفقات |
+
+---
+
+## 📚 التوثيق والكتيبات الفنية (Documentation)
+
+- 📘 [دليل النشر والتثبيت التفصيلي على Debian 13](docs/DEBIAN_13_DEPLOYMENT.md)
+- 📙 [دليل الصيانة والتشغيل واستكشاف الأخطاء](docs/MAINTENANCE_GUIDE.md)
+- ⚙️ [ملف التكوين ومتغيرات البيئة الشامل (.env.example)](.env.example)
+
+---
+
+## ⚖️ الملكية والترخيص
+حقوق الطبع والتطوير محفوظة لمؤسسة **بيت الصحافة - اليمن (PressHouse Foundation)**.
