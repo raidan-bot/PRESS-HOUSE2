@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { ProjectGrid } from '../components/projects/ProjectGrid';
 import { YemenJPTDetailSection } from '../components/YemenJPTDetailSection';
 import { motion } from 'motion/react';
@@ -23,52 +24,42 @@ export default function ProjectsDemo() {
   const isRtl = i18n.language === 'ar';
   const { width, tier, isMobile, isTablet } = useResponsiveLayout();
 
-  const [featuredProjects, setFeaturedProjects] = React.useState<any[]>([]);
-  const [loading, setLoading] = React.useState<boolean>(true);
+  const { data: featuredProjects = [] } = useQuery({
+    queryKey: ['projects', isRtl],
+    queryFn: async () => {
+      const response = await api.get('/api/projects');
+      const data = response.data || [];
+      if (data.length > 0) {
+        const featured = data.filter((p: any) => p.isFeatured === 1 || p.isFeatured === true);
+        const toUse = featured.length > 0 ? featured : data;
+        
+        return toUse.slice(0, 6).map((p: any) => {
+          let titleObj = p.title;
+          let descObj = p.description;
+          try {
+            if (typeof titleObj === 'string') titleObj = JSON.parse(titleObj);
+          } catch (e) {}
+          try {
+            if (typeof descObj === 'string') descObj = JSON.parse(descObj);
+          } catch (e) {}
 
-  React.useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const response = await api.get('/api/projects');
-        const data = response.data || [];
-        if (data.length > 0) {
-          const featured = data.filter((p: any) => p.isFeatured === 1 || p.isFeatured === true);
-          const toUse = featured.length > 0 ? featured : data;
-          
-          const mapped = toUse.slice(0, 6).map((p: any) => {
-            let titleObj = p.title;
-            let descObj = p.description;
-            try {
-              if (typeof titleObj === 'string') titleObj = JSON.parse(titleObj);
-            } catch (e) {}
-            try {
-              if (typeof descObj === 'string') descObj = JSON.parse(descObj);
-            } catch (e) {}
-
-            return {
-              title: isRtl ? titleObj?.ar || titleObj?.en || p.title : titleObj?.en || titleObj?.ar || p.title,
-              desc: isRtl ? descObj?.ar || descObj?.en || p.description : descObj?.en || descObj?.ar || p.description,
-              icon: p.category === 'Heritage' ? History : 
-                    p.category === 'Training' ? GraduationCap :
-                    p.category === 'Protection' ? CheckCircle : 
-                    p.category === 'Digital' ? Database : Sparkles,
-              color: 'text-blue-600',
-              bg: 'bg-blue-50',
-              id: p.id
-            };
-          });
-          setFeaturedProjects(mapped);
-        } else {
-          setFeaturedProjects([]);
-        }
-      } catch (err) {
-        setFeaturedProjects([]);
-      } finally {
-        setLoading(false);
+          return {
+            title: isRtl ? titleObj?.ar || titleObj?.en || p.title : titleObj?.en || titleObj?.ar || p.title,
+            desc: isRtl ? descObj?.ar || descObj?.en || p.description : descObj?.en || descObj?.ar || p.description,
+            icon: p.category === 'Heritage' ? History : 
+                  p.category === 'Training' ? GraduationCap :
+                  p.category === 'Protection' ? CheckCircle : 
+                  p.category === 'Digital' ? Database : Sparkles,
+            color: 'text-blue-600',
+            bg: 'bg-blue-50',
+            id: p.id
+          };
+        });
       }
-    };
-    fetchProjects();
-  }, [isRtl]);
+      return [];
+    },
+    staleTime: 5 * 60 * 1000,
+  });
 
   return (
     <div className="min-h-screen bg-white overflow-hidden">

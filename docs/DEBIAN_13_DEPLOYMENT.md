@@ -43,7 +43,7 @@ chmod +x scripts/install-debian13.sh
 ```
 
 يقوم الاسكريبت تلقائياً بـ:
-- تحديث النظام وتثبيت حزم `Node.js 22 LTS`, `Nginx`, `Certbot`, `Build-essential`, `SQLite3`, `Fail2ban`, `UFW`.
+- تحديث النظام وتثبيت حزم `Node.js 22 LTS`, `PostgreSQL`, `Nginx`, `Certbot`, `Build-essential`, `Fail2ban`, `UFW`.
 - تثبيت حزم Node.js وتوليد المفاتيح الأمنية المشفرة لملف `.env`.
 - إعداد سيرفر Nginx كـ Reverse Proxy مع معايير أمان عالية والتخزين المؤقت للمرفقات.
 - إعداد وتفعيل جدار الحماية UFW وتشغيل المنصة عبر `PM2` للبدء التلقائي مع إقلاع السيرفر.
@@ -55,7 +55,7 @@ chmod +x scripts/install-debian13.sh
 ### الخطوة 1: تحديث حزم النظام وتثبيت التبعات الأساسية
 ```bash
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y curl wget git build-essential python3 g++ make sqlite3 nginx ufw certbot python3-certbot-nginx fail2ban tar gzip
+sudo apt install -y curl wget git build-essential python3 g++ make postgresql postgresql-contrib nginx ufw certbot python3-certbot-nginx fail2ban tar gzip
 ```
 
 ### الخطوة 2: تثبيت Node.js v22 LTS ومُدير العمليات PM2

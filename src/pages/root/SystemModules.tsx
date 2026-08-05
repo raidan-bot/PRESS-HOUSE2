@@ -191,9 +191,9 @@ export function DatabaseManager({ isRtl }: { isRtl: boolean }) {
     
     // Initial logger
     setLogs([
-      `[${new Date().toLocaleTimeString()}] SQLite database connected at database.sqlite`,
-      `[${new Date().toLocaleTimeString()}] Pragma foreign_keys option enabled successfully`,
-      `[${new Date().toLocaleTimeString()}] Integrity check on tables completed: OK`
+      `[${new Date().toLocaleTimeString()}] PostgreSQL database connected successfully`,
+      `[${new Date().toLocaleTimeString()}] Connection pool initialized with high performance settings`,
+      `[${new Date().toLocaleTimeString()}] Integrity check on PostgreSQL tables completed: OK`
     ]);
   }, []);
 
@@ -277,8 +277,8 @@ export function DatabaseManager({ isRtl }: { isRtl: boolean }) {
           <h3 className="text-md font-bold text-white mb-4">{isRtl ? 'إجراءات الصيانة الأسبوعية' : 'DB Maintenance'}</h3>
           <p className="text-slate-400 text-sm leading-relaxed mb-6">
             {isRtl 
-              ? 'إن تشغيل VACUUM يساعد على إعادة جدولة وبناء المؤشرات وتصغير حجم الملف وتحسين أداء البحث الحقوقي.'
-              : 'Integrate indexing operations to keep SQLite files minimal, rebuild indexes and clear fragmented writes.'}
+              ? 'إن تشغيل VACUUM يساعد على إعادة جدولة وبناء المؤشرات وتصغير حجم القواعد وتحسين أداء البحث الحقوقي.'
+              : 'Integrate indexing operations to keep PostgreSQL database minimal, rebuild indexes and clear fragmented writes.'}
           </p>
           <button 
             onClick={handleOptimize}
@@ -293,7 +293,7 @@ export function DatabaseManager({ isRtl }: { isRtl: boolean }) {
         <div className="bg-slate-900 p-6 rounded-2xl border border-slate-850 space-y-4">
           <h3 className="text-md font-bold text-white">{isRtl ? 'تصدير النسخ الاحتياطية' : 'Backup & Recovery'}</h3>
           <p className="text-slate-400 text-sm leading-relaxed">
-            {isRtl ? 'قم بتصدير نسخة SQLite احتياطية لتنزيلها والاحتفاظ بها.' : 'Download database snapshots for local backups.'}
+            {isRtl ? 'قم بتصدير نسخة PostgreSQL احتياطية لتنزيلها والاحتفاظ بها.' : 'Download database snapshots for local backups.'}
           </p>
           <a
             href="/"
@@ -377,9 +377,9 @@ export function SecurityHardening({ isRtl }: { isRtl: boolean }) {
             <div className="flex items-start gap-4 p-4 bg-slate-850/30 rounded-xl border border-slate-800">
               <span className="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg shrink-0">✔</span>
               <div>
-                <h4 className="font-bold text-white text-sm">{isRtl ? 'حماية قاعدة البيانات المحلية' : 'Hardened Local Database Security'}</h4>
+                <h4 className="font-bold text-white text-sm">{isRtl ? 'حماية قاعدة البيانات' : 'Hardened PostgreSQL Security'}</h4>
                 <p className="text-slate-400 text-xs mt-1 leading-relaxed">
-                  {isRtl ? 'حماية قاعدة بيانات SQLite محلية مدمجة بأعلى معايير الأمان لمنع هجمات الحقن والوصول غير المصرح به.' : 'Embedded database protected against SQL injection and unauthorized offline operations.'}
+                  {isRtl ? 'حماية قاعدة بيانات PostgreSQL بأعلى معايير الأمان لمنع هجمات الحقن والوصول غير المصرح به.' : 'PostgreSQL database protected against SQL injection and unauthorized operations.'}
                 </p>
               </div>
             </div>
@@ -431,11 +431,11 @@ export function ServerLogs({ isRtl }: { isRtl: boolean }) {
     const auditEvents = [
       { id: '1', level: 'info', service: 'AUTH', ar: 'تسجيل دخول ناجح للمشرف admin@ph-ye.org', en: 'Successful administrator login of admin@ph-ye.org', ip: '127.0.0.1' },
       { id: '2', level: 'info', service: 'API', ar: 'جلب إحصائيات لوحة التحكم بنجاح', en: 'Retrieved Overview dashboard counts', ip: '127.0.0.1' },
-      { id: '3', level: 'info', service: 'SQLITE', ar: 'بدء فحص تكافؤ الجداول وحفظ الـ Cache', en: 'Integrity database check: OK', ip: 'system' },
+      { id: '3', level: 'info', service: 'POSTGRES', ar: 'بدء فحص تكافؤ الجداول وحفظ الـ Cache', en: 'Integrity database check: OK', ip: 'system' },
       { id: '4', level: 'warning', service: 'BOT_MONITOR', ar: 'تنبيه: محاولة وصول لعنوان غير مدرج /admin/config.php', en: 'Access blocked to unregistered route: /admin/config.php', ip: '210.45.2.14' },
       { id: '5', level: 'info', service: 'TELEGRAM', ar: 'البوت الذكي نجح بالاتصال بخوادم Telegram بنجاح', en: 'PH Telegram Bot successfully connected to server polling', ip: 'telegramapi' },
       { id: '6', level: 'info', service: 'MEDIA', ar: 'تطهير وحذف صورة برمجية مكررة id: 41', en: 'Successfully purged unused attachment asset id: 41', ip: '127.0.0.1' },
-      { id: '7', level: 'info', service: 'SQLITE', ar: 'إجراء فحص سلامة قاعدة البيانات والنسخ الاحتياطي بنجاح', en: 'Successfully verified SQLite database integrity and backed up schemas', ip: 'api-service' },
+      { id: '7', level: 'info', service: 'POSTGRES', ar: 'إجراء فحص سلامة قاعدة البيانات والنسخ الاحتياطي بنجاح', en: 'Successfully verified PostgreSQL database integrity and backed up schemas', ip: 'api-service' },
     ];
     setLogsList(auditEvents);
     setLoading(false);

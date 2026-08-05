@@ -15,13 +15,26 @@ export default function Navbar() {
     const fetchSettings = async () => {
       try {
         const response = await api.get('/api/settings');
+        const parseSafeJson = (val: any) => {
+          if (!val) return null;
+          if (typeof val === 'object') return val;
+          if (typeof val === 'string') {
+            try {
+              return JSON.parse(val);
+            } catch {
+              return { ar: val, en: val };
+            }
+          }
+          return null;
+        };
+
         if (response.data && Object.keys(response.data).length > 0) {
           const s = response.data;
           setSettings({
             ...s,
-            siteName: typeof s.siteName === 'string' ? JSON.parse(s.siteName) : s.siteName,
-            socialLinks: typeof s.socialLinks === 'string' ? JSON.parse(s.socialLinks) : s.socialLinks,
-            address: typeof s.address === 'string' ? JSON.parse(s.address) : s.address,
+            siteName: parseSafeJson(s.siteName),
+            socialLinks: parseSafeJson(s.socialLinks),
+            address: parseSafeJson(s.address),
           });
         }
       } catch (error) {

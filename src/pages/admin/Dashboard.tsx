@@ -1405,7 +1405,7 @@ export function ViolationManager({ isRtl }: { isRtl: boolean }) {
             {isCrawling && (
               <div className="mt-4 p-4 bg-teal-50 rounded-xl border border-teal-100 text-center animate-pulse">
                 <p className="text-teal-800 text-xs font-mono">
-                  [FIRE_CRAWL] Scanning Twitter/X hashtags... Matching keywords [اعتقال، اختطاف، حجب]... Querying Gemini @google/genai NLP filter...
+                  [FIRE_CRAWL] Scanning Twitter/X hashtags... Matching keywords [اعتقال، اختطاف، حجب]... Querying Built-in AI Engine NLP filter...
                 </p>
               </div>
             )}
@@ -1681,7 +1681,7 @@ export function ViolationManager({ isRtl }: { isRtl: boolean }) {
             </h3>
             <p className="text-slate-400 text-sm mb-6">
               {isRtl 
-                ? 'محرك استعلام مدعوم بنموذج Gemini 3.5 ببيت الصحافة لقراءة وفهرسة السجلات النشطة ورصد الأنماط وتقديم الإرشادات وتوليد التقارير الموثقة فورياً.'
+                ? 'محرك استعلام مدعوم بنموذج الذكاء الاصطناعي المدمج ببيت الصحافة لقراءة وفهرسة السجلات النشطة ورصد الأنماط وتقديم الإرشادات وتوليد التقارير الموثقة فورياً.'
                 : 'Direct natural language queries linked to the live observatory database context. Formulates real-time summaries, pattern alerts, and dossiers.'}
             </p>
 
@@ -1761,7 +1761,7 @@ export function ViolationManager({ isRtl }: { isRtl: boolean }) {
               {assistantLoading ? (
                 <div className="flex flex-col items-center justify-center p-12 text-teal-500 gap-3">
                   <Loader2 className="animate-spin text-teal-600" size={36} />
-                  <p className="text-xs animate-pulse">Running live semantic SQL maps against DB context via Gemini...</p>
+                  <p className="text-xs animate-pulse">Running live semantic query against DB context via Built-in AI Engine...</p>
                 </div>
               ) : (
                 <div className="whitespace-pre-wrap leading-relaxed text-slate-200">

@@ -14,11 +14,15 @@ import observatoryRoutes from './observatory.routes';
 import systemRoutes from './system.routes';
 import videoRoutes from './video.routes';
 import cinemaRoutes from './cinema.routes';
+import sitemapRoutes from './sitemap.routes';
+import membershipRoutes from './membership.routes';
 
 const router = Router();
 
 router.get('/test', (req, res) => res.json({ ok: true }));
+router.use('/', sitemapRoutes);
 router.use('/', systemRoutes);
+router.use('/', membershipRoutes);
 router.use('/settings', settingsRoutes);
 router.use('/auth', authRoutes);
 router.use('/articles', articleRoutes);
@@ -26,14 +30,19 @@ router.use('/media', mediaRoutes);
 router.use('/ai', aiRoutes);
 router.use('/projects', projectRoutes);
 router.use('/academy', academyRoutes);
+router.use('/courses', academyRoutes);
 router.use('/users', userRoutes);
 router.use('/jobs', jobRoutes);
+router.use('/job-applications', jobRoutes);
 router.use('/events', eventRoutes);
 router.use('/tenders', tenderRoutes);
 router.use('/observatory', observatoryRoutes);
 router.use('/violations', observatoryRoutes);
 router.use('/videos', videoRoutes);
+router.use('/social-reels', videoRoutes);
 router.use('/cinema', cinemaRoutes);
+router.use('/membership-tiers', membershipRoutes);
+router.use('/user-memberships', membershipRoutes);
 
 // Catch-all for unmatched API routes
 router.use((req, res) => {

@@ -48,4 +48,37 @@ export class JobController {
       res.status(500).json({ message: 'Error deleting job' });
     }
   }
+
+  static async getApplications(req: Request, res: Response) {
+    try {
+      const applications = await JobRepository.findAllApplications();
+      res.json(applications);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching job applications' });
+    }
+  }
+
+  static async submitApplication(req: Request, res: Response) {
+    try {
+      const id = Math.random().toString(36).substring(2, 11);
+      const data = {
+        id,
+        ...req.body,
+        status: req.body.status || 'pending',
+      };
+      await JobRepository.createApplication(data);
+      res.status(201).json({ id, success: true });
+    } catch (error) {
+      res.status(500).json({ message: 'Error submitting job application' });
+    }
+  }
+
+  static async updateApplication(req: Request, res: Response) {
+    try {
+      await JobRepository.updateApplication(req.params.id, req.body);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: 'Error updating job application' });
+    }
+  }
 }

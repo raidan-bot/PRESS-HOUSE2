@@ -30,7 +30,15 @@ NODE_VERSION="22"
 
 echo -e "${YELLOW}[1/8] تحديث حزم النظام وتثبيت المتطلبات الأساسية...${NC}"
 apt update && apt upgrade -y
-apt install -y curl wget git build-essential python3 g++ make sqlite3 nginx ufw certbot python3-certbot-nginx fail2ban tar gzip
+apt install -y curl wget git build-essential python3 g++ make postgresql postgresql-contrib nginx ufw certbot python3-certbot-nginx fail2ban tar gzip
+
+# Setup PostgreSQL Database and User locally
+systemctl start postgresql
+systemctl enable postgresql
+sudo -u postgres psql -c "CREATE USER presshouse WITH PASSWORD 'presshouse_pass';" || true
+sudo -u postgres psql -c "CREATE DATABASE presshouse_db OWNER presshouse;" || true
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE presshouse_db TO presshouse;" || true
+
 
 echo -e "${YELLOW}[2/8] تثبيت Node.js v${NODE_VERSION} LTS وتجهيز البيئة...${NC}"
 if ! command -v node &> /dev/null; then

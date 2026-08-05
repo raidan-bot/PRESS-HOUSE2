@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Briefcase, MapPin, Calendar, ArrowRight, Search, Clock, Building2, DollarSign, CheckCircle2, Loader2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { motion } from 'motion/react';
 import { JobApplicationModal } from '../components/JobApplicationModal';
 import { api } from '../services/api';
@@ -12,82 +13,74 @@ export default function Jobs() {
   const navigate = useNavigate();
   const [selectedJob, setSelectedJob] = useState<string | null>(null);
 
-  const [jobs, setJobs] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
 
-  useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        const response = await api.get('/api/jobs');
-        if (response.data && response.data.length > 0) {
-          const mapped = (Array.isArray(response.data) ? response.data : []).map((item: any) => {
-            const title = typeof item.title === 'string' ? JSON.parse(item.title) : item.title;
-            const description = typeof item.description === 'string' ? JSON.parse(item.description) : item.description;
-            const requirements = typeof item.requirements === 'string' ? JSON.parse(item.requirements) : item.requirements;
-            return {
-              id: item.id,
-              title: title[isRtl ? 'ar' : 'en'] || title['ar'] || title['en'],
-              description: description[isRtl ? 'ar' : 'en'] || description['ar'] || description['en'],
-              requirements: Array.isArray(requirements) ? requirements : (requirements[isRtl ? 'ar' : 'en'] || []),
-              location: isRtl ? 'تعز، اليمن' : 'Taiz, Yemen',
-              type: isRtl ? 'دوام كامل' : 'Full-time',
-              salary: isRtl ? 'تنافسي' : 'Competitive',
-              category: isRtl ? 'تحرير' : 'Editorial',
-              deadline: item.deadline ? new Date(item.deadline).toISOString().slice(0, 10) : '2026-12-31',
-              status: item.status || 'open',
-              posted: isRtl ? 'حديثاً' : 'Recently'
-            };
-          });
-          setJobs(mapped);
-        } else {
-          // Default backup lists
-          setJobs([
-            { 
-              id: '1', 
-              title: isRtl ? 'محرر صحفي أول' : 'Senior News Editor', 
-              location: isRtl ? 'تعز، اليمن' : 'Taiz, Yemen', 
-              type: isRtl ? 'دوام كامل' : 'Full-time', 
-              deadline: '2026-10-15',
-              salary: isRtl ? 'تنافسي' : 'Competitive',
-              category: isRtl ? 'تحرير' : 'Editorial',
-              posted: isRtl ? 'منذ يومين' : '2 days ago',
-              status: 'open'
-            },
-            { 
-              id: '2', 
-              title: isRtl ? 'منسق مشاريع إعلامية' : 'Media Project Coordinator', 
-              location: isRtl ? 'عدن، اليمن' : 'Aden, Yemen', 
-              type: isRtl ? 'دوام كامل' : 'Full-time', 
-              deadline: '2026-11-20',
-              salary: isRtl ? 'تنافسي' : 'Competitive',
-              category: isRtl ? 'إدارة' : 'Management',
-              posted: isRtl ? 'منذ 5 أيام' : '5 days ago',
-              status: 'open'
-            },
-            { 
-              id: '3', 
-              title: isRtl ? 'مصمم جرافيك وموشن جرافيك' : 'Graphic & Motion Designer', 
-              location: isRtl ? 'عن بعد' : 'Remote', 
-              type: isRtl ? 'عقد' : 'Contract', 
-              deadline: '2026-09-10',
-              salary: isRtl ? 'حسب المشروع' : 'Per Project',
-              category: isRtl ? 'تصميم' : 'Design',
-              posted: isRtl ? 'منذ أسبوع' : '1 week ago',
-              status: 'open'
-            },
-          ]);
-        }
-      } catch (error) {
-        console.error('Error fetching jobs:', error);
-      } finally {
-        setLoading(false);
+  const { data: jobs = [], isLoading: loading } = useQuery({
+    queryKey: ['jobs', isRtl],
+    queryFn: async () => {
+      const response = await api.get('/api/jobs');
+      if (response.data && response.data.length > 0) {
+        return (Array.isArray(response.data) ? response.data : []).map((item: any) => {
+          const title = typeof item.title === 'string' ? JSON.parse(item.title) : item.title;
+          const description = typeof item.description === 'string' ? JSON.parse(item.description) : item.description;
+          const requirements = typeof item.requirements === 'string' ? JSON.parse(item.requirements) : item.requirements;
+          return {
+            id: item.id,
+            title: title[isRtl ? 'ar' : 'en'] || title['ar'] || title['en'],
+            description: description[isRtl ? 'ar' : 'en'] || description['ar'] || description['en'],
+            requirements: Array.isArray(requirements) ? requirements : (requirements[isRtl ? 'ar' : 'en'] || []),
+            location: isRtl ? 'تعز، اليمن' : 'Taiz, Yemen',
+            type: isRtl ? 'دوام كامل' : 'Full-time',
+            salary: isRtl ? 'تنافسي' : 'Competitive',
+            category: isRtl ? 'تحرير' : 'Editorial',
+            deadline: item.deadline ? new Date(item.deadline).toISOString().slice(0, 10) : '2026-12-31',
+            status: item.status || 'open',
+            posted: isRtl ? 'حديثاً' : 'Recently'
+          };
+        });
+      } else {
+        // Backup list
+        return [
+          { 
+            id: '1', 
+            title: isRtl ? 'محرر صحفي أول' : 'Senior News Editor', 
+            location: isRtl ? 'تعز، اليمن' : 'Taiz, Yemen', 
+            type: isRtl ? 'دوام كامل' : 'Full-time', 
+            deadline: '2026-10-15',
+            salary: isRtl ? 'تنافسي' : 'Competitive',
+            category: isRtl ? 'تحرير' : 'Editorial',
+            posted: isRtl ? 'منذ يومين' : '2 days ago',
+            status: 'open'
+          },
+          { 
+            id: '2', 
+            title: isRtl ? 'منسق مشاريع إعلامية' : 'Media Project Coordinator', 
+            location: isRtl ? 'عدن، اليمن' : 'Aden, Yemen', 
+            type: isRtl ? 'دوام كامل' : 'Full-time', 
+            deadline: '2026-11-20',
+            salary: isRtl ? 'تنافسي' : 'Competitive',
+            category: isRtl ? 'إدارة' : 'Management',
+            posted: isRtl ? 'منذ 5 أيام' : '5 days ago',
+            status: 'open'
+          },
+          { 
+            id: '3', 
+            title: isRtl ? 'مصمم جرافيك وموشن جرافيك' : 'Graphic & Motion Designer', 
+            location: isRtl ? 'عن بعد' : 'Remote', 
+            type: isRtl ? 'عقد' : 'Contract', 
+            deadline: '2026-09-10',
+            salary: isRtl ? 'حسب المشروع' : 'Per Project',
+            category: isRtl ? 'تصميم' : 'Design',
+            posted: isRtl ? 'منذ أسبوع' : '1 week ago',
+            status: 'open'
+          },
+        ];
       }
-    };
-    fetchJobs();
-  }, [isRtl]);
+    },
+    staleTime: 5 * 60 * 1000,
+  });
 
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = job.title.toLowerCase().includes(searchQuery.toLowerCase()) || 

@@ -32,12 +32,24 @@ export default function SystemSettings() {
         const response = await api.get('/api/settings');
         if (response.data && Object.keys(response.data).length > 0) {
           const rawData = response.data;
+          const parseSafe = (val: any, fallback: any) => {
+            if (!val) return fallback;
+            if (typeof val === 'object') return val;
+            if (typeof val === 'string') {
+              try {
+                return JSON.parse(val);
+              } catch {
+                return { ar: val, en: val };
+              }
+            }
+            return fallback;
+          };
           const parsedSettings = {
             ...settings,
             ...rawData,
-            siteName: typeof rawData.siteName === 'string' ? JSON.parse(rawData.siteName) : (rawData.siteName || settings.siteName),
-            socialLinks: typeof rawData.socialLinks === 'string' ? JSON.parse(rawData.socialLinks) : (rawData.socialLinks || settings.socialLinks),
-            livestream: typeof rawData.livestream === 'string' ? JSON.parse(rawData.livestream) : (rawData.livestream || settings.livestream)
+            siteName: parseSafe(rawData.siteName, settings.siteName),
+            socialLinks: parseSafe(rawData.socialLinks, settings.socialLinks),
+            livestream: parseSafe(rawData.livestream, settings.livestream)
           };
           setSettings(parsedSettings);
         }
@@ -164,8 +176,8 @@ export default function SystemSettings() {
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-400">{isRtl ? 'نموذج الذكاء الاصطناعي (Model)' : 'AI Model'}</label>
               <select className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 outline-none">
-                <option value="gemini-pro">Gemini Pro</option>
-                <option value="gemini-flash">Gemini Flash</option>
+                <option value="nvidia/qwen-2.5-coder-32b-instruct">NVIDIA Qwen 2.5 Coder 32B</option>
+                <option value="gpt-4o-mini">GPT-4o Mini (OpenAI)</option>
               </select>
             </div>
             <div className="space-y-2">

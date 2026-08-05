@@ -1,5 +1,7 @@
 import React, { Suspense, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './lib/queryClient';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Live from './pages/Live';
@@ -173,14 +175,16 @@ const ProtectedRoutes = () => {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <RouteTracker>
-          <Layout>
-            <ProtectedRoutes />
-          </Layout>
-        </RouteTracker>
-      </Router>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <Router>
+          <RouteTracker>
+            <Layout>
+              <ProtectedRoutes />
+            </Layout>
+          </RouteTracker>
+        </Router>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }

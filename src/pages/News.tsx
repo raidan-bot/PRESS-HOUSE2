@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Calendar, User, ArrowRight, Newspaper, Filter, Search, Clock, Tag } from 'lucide-react';
+import { Calendar, User, ArrowRight, Newspaper, Filter, Search, Clock, Tag, Loader2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { SEO } from '../components/common/SEO';
 import { Breadcrumbs } from '../components/common/Breadcrumbs';
 import { motion, AnimatePresence } from 'motion/react';
@@ -17,9 +18,7 @@ function cn(...inputs: ClassValue[]) {
 export default function News() {
   const { i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
-  const [articles, setArticles] = useState<any[]>([]);
   const [category, setCategory] = useState('all');
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
   // Call dynamic SEO Hook based on current active news state
@@ -31,46 +30,37 @@ export default function News() {
     keywords: isRtl ? 'أخبار اليمن, تقارير صحفية, حرية الرأي, الصحافة الاستقصائية' : 'Yemen news, journalism articles, press freedom, investigative reports'
   });
 
-  useEffect(() => {
-    const fetchArticles = async () => {
-      setLoading(true);
-      try {
-        let rawArticles: any[] = [];
-        const parseField = (val: any) => {
-          if (!val) return { ar: '', en: '' };
-          if (typeof val === 'object') return val;
-          if (typeof val === 'string') {
-            try {
-              const parsed = JSON.parse(val);
-              if (typeof parsed === 'object' && parsed !== null) return parsed;
-              return { ar: val, en: val };
-            } catch {
-              return { ar: val, en: val };
-            }
+  const { data: articles = [], isLoading: loading } = useQuery({
+    queryKey: ['articles', category],
+    queryFn: async () => {
+      const parseField = (val: any) => {
+        if (!val) return { ar: '', en: '' };
+        if (typeof val === 'object') return val;
+        if (typeof val === 'string') {
+          try {
+            const parsed = JSON.parse(val);
+            if (typeof parsed === 'object' && parsed !== null) return parsed;
+            return { ar: val, en: val };
+          } catch {
+            return { ar: val, en: val };
           }
-          return { ar: String(val), en: String(val) };
-        };
+        }
+        return { ar: String(val), en: String(val) };
+      };
 
-        const response = await api.get('/api/articles');
-        rawArticles = (Array.isArray(response.data) ? response.data : []).map((doc: any) => ({
-          ...doc,
-          title: parseField(doc.title),
-          content: parseField(doc.content),
-        }));
+      const response = await api.get('/api/articles');
+      const rawArticles = (Array.isArray(response.data) ? response.data : []).map((doc: any) => ({
+        ...doc,
+        title: parseField(doc.title),
+        content: parseField(doc.content),
+      }));
 
-        const formattedAndFiltered = rawArticles
-          .filter((a: any) => a.status === 'published' && (category === 'all' || a.category === category))
-          .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        
-        setArticles(formattedAndFiltered);
-      } catch (error) {
-        console.error("Error fetching news:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchArticles();
-  }, [category]);
+      return rawArticles
+        .filter((a: any) => a.status === 'published' && (category === 'all' || a.category === category))
+        .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    },
+    staleTime: 5 * 60 * 1000,
+  });
 
   const categories = [
     { id: 'all', label: isRtl ? 'الكل' : 'All', icon: Newspaper },

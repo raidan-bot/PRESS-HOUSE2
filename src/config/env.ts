@@ -41,10 +41,9 @@ export const config = {
     clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
   },
   ai: {
-    geminiKey: process.env.GEMINI_API_KEY,
     apiKey: process.env.AI_API_KEY || process.env.OPENAI_API_KEY,
-    baseUrl: process.env.AI_BASE_URL || 'https://api.openai.com/v1',
-    primaryModel: process.env.AI_MODEL_PRIMARY || 'gpt-4o-mini',
+    baseUrl: process.env.AI_BASE_URL || 'https://integrate.api.nvidia.com/v1',
+    primaryModel: process.env.AI_MODEL_PRIMARY || 'nvidia/qwen-2.5-coder-32b-instruct',
   },
   smtp: {
     host: process.env.SMTP_HOST || '',

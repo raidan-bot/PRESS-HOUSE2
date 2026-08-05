@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =========================================================================
-# بيت الصحافة (PressHouse) - اسكريبت النسخ الاحتياطي الدوري لـ Debian 13
+# بيت الصحافة (PressHouse) - اسكريبت النسخ الاحتياطي الدوري لـ Debian 13 (PostgreSQL)
 # PressHouse Enterprise Platform - Automated Backup Script
 # =========================================================================
 
@@ -13,12 +13,23 @@ RETENTION_DAYS=30
 
 mkdir -p "${BACKUP_DIR}"
 
-echo "[$(date)] بدء عملية النسخ الاحتياطي لمنصة بيت الصحافة..."
+echo "[$(date)] بدء عملية النسخ الاحتياطي لمنصة بيت الصحافة (PostgreSQL)..."
 
-# 1. Backup SQLite Database
-if [ -f "${APP_DIR}/database.sqlite" ]; then
-  sqlite3 "${APP_DIR}/database.sqlite" ".backup '${BACKUP_DIR}/db_backup_${TIMESTAMP}.sqlite'"
-  echo "✅ تم إنشاء نسخة احتياطية من قاعدة البيانات: db_backup_${TIMESTAMP}.sqlite"
+# Load environment variables if available
+if [ -f "${APP_DIR}/.env" ]; then
+  export $(grep -v '^#' "${APP_DIR}/.env" | xargs)
+fi
+
+# 1. Backup PostgreSQL Database
+DB_NAME="${PGDATABASE:-presshouse_db}"
+DB_USER="${PGUSER:-presshouse}"
+
+if command -v pg_dump >/dev/null 2>&1; then
+  sudo -u postgres pg_dump "${DB_NAME}" | gzip > "${BACKUP_DIR}/pg_dump_${TIMESTAMP}.sql.gz" || \
+  pg_dump "${POSTGRES_URL:-postgresql://presshouse:presshouse_pass@localhost:5432/presshouse_db}" | gzip > "${BACKUP_DIR}/pg_dump_${TIMESTAMP}.sql.gz"
+  echo "✅ تم إنشاء نسخة احتياطية من قاعدة بيانات PostgreSQL: pg_dump_${TIMESTAMP}.sql.gz"
+else
+  echo "⚠️ لم يتم العثور على أداة pg_dump، يُرجى التأكد من تثبيت postgresql-client."
 fi
 
 # 2. Backup Uploads Directory

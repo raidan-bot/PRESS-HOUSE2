@@ -357,7 +357,7 @@ export default function ImpactAnalytics() {
           { id: 'pmis', label: isRtl ? 'إطار مشاريع PMIS' : 'PMIS Indicators', icon: Briefcase },
           { id: 'widgets', label: isRtl ? 'صانع الويجيت وتصدير المواقع' : 'Impact Widget Builder', icon: Share2 },
           { id: 'reports', label: isRtl ? 'مولد التقارير السنوية' : 'Annual Report Generator', icon: FileBarChart },
-          { id: 'ai', label: isRtl ? 'شريك التحليل الذكي (Gemini AI)' : 'AI Strategic Partner', icon: BrainCircuit },
+          { id: 'ai', label: isRtl ? 'شريك التحليل الذكي (AI Engine)' : 'AI Strategic Partner', icon: BrainCircuit },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -1530,7 +1530,7 @@ function AIAssistantModule({ isRtl, stats }: { isRtl: boolean, stats: any }) {
           {loadingAction ? (
              <div className="flex flex-col items-center justify-center text-slate-500 space-y-4 animate-pulse">
                <BrainCircuit size={40} className="text-blue-400 animate-bounce" />
-               <p className="text-xs font-bold">{isRtl ? 'جاري مسح السجلات ومطابقة العلاقات...' : 'Contextualizing dynamic tables with Gemini AI...'}</p>
+               <p className="text-xs font-bold">{isRtl ? 'جاري مسح السجلات ومطابقة العلاقات...' : 'Contextualizing dynamic tables with Built-in AI Engine...'}</p>
              </div>
           ) : output ? (
             <div className="animate-in fade-in slide-in-from-bottom-3 duration-300">

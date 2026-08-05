@@ -10,7 +10,7 @@ This file contains persistent rules and context for AI coding agents working on 
 ## Technical Stack
 - **Frontend**: React 19, Tailwind CSS 4, Framer Motion, Lucide Icons, Swiper.
 - **Backend**: Node.js (tsx), Express.
-- **Database**: SQLite (local) with `better-sqlite3`. MySQL/MariaDB compatible for production.
+- **Database**: Pure PostgreSQL (via `pg`).
 - **Localization**: `i18next` with Arabic (RTL) as primary and English (LTR) as secondary.
 - **SEO**: `react-helmet-async`. Meta tags are managed via settings.
 
@@ -22,7 +22,7 @@ This file contains persistent rules and context for AI coding agents working on 
    - Use high-contrast slate-900 for dark text and white backgrounds.
 3. **Database Migrations**: Add migrations to `src/db.ts` using `try-catch` blocks for `ALTER TABLE` statements to ensure idempotency.
 4. **Environment Variables**:
-   - `GEMINI_API_KEY`: Server-side only.
+   - `AI_API_KEY`: Server-side only (Built-in AI Engine API Key).
    - `VITE_ADMIN_PATH`: Custom path for admin dashboard.
    - `VITE_ROOT_PATH`: Custom path for system superuser dashboard.
 5. **AI Ethics**: The AI Chat Assistant (`/api/ai/chat`) must be visitor-oriented. It must NEVER perform admin actions or mention its internal model name.

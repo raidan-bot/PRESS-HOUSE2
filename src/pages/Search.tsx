@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { 
   Search as SearchIcon, 
@@ -16,15 +16,18 @@ import {
   FileText,
   HelpCircle,
   TrendingUp,
-  Sliders
+  Sliders,
+  Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { api } from '../services/api';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { searchIndexService, SearchIndexItem } from '../services/searchIndexService';
 
 export default function Search() {
   const { i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
+  const navigate = useNavigate();
 
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');
@@ -34,6 +37,38 @@ export default function Search() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
+  const [suggestions, setSuggestions] = useState<SearchIndexItem[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Initialize search index in background
+    searchIndexService.initialize().catch(e => console.warn('FlexSearch Init error:', e));
+  }, []);
+
+  useEffect(() => {
+    // Close suggestions on click outside
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleQueryChange = (val: string) => {
+    setQuery(val);
+    if (val.trim().length >= 2) {
+      const matched = searchIndexService.getAutocompleteSuggestions(val, 6);
+      setSuggestions(matched);
+      setShowSuggestions(true);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  };
 
   const categories = [
     { value: 'all', label: isRtl ? 'الكل' : 'All Sections', icon: <Layers size={16} /> },
@@ -65,10 +100,14 @@ export default function Search() {
 
   const performSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    setShowSuggestions(false);
     setLoading(true);
     setError('');
     setHasSearched(true);
     try {
+      // First check local FlexSearch index
+      const localMatches = searchIndexService.search(query, category);
+
       const response = await api.get('/api/search', {
         params: {
           q: query,
@@ -77,10 +116,36 @@ export default function Search() {
           keywords
         }
       });
-      setResults(response.data || []);
+      const apiData = Array.isArray(response.data) ? response.data : [];
+
+      // Combine API results with local index matches (removing duplicates)
+      const combined = [...apiData];
+      localMatches.forEach(item => {
+        if (!combined.some(c => c.id === item.id || c.url === item.url)) {
+          combined.push({
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            section: item.type,
+            url: item.url,
+            createdAt: item.date || new Date().toISOString(),
+          });
+        }
+      });
+
+      setResults(combined);
     } catch (err: any) {
       console.error('Search error:', err);
-      setError(isRtl ? 'عذراً، تعذر إتمام البحث حالياً.' : 'Sorry, failed to complete your search.');
+      // Fallback strictly to local FlexSearch index if network API fails
+      const localMatches = searchIndexService.search(query, category);
+      setResults(localMatches.map(item => ({
+        id: item.id,
+        title: item.title,
+        description: item.description,
+        section: item.type,
+        url: item.url,
+        createdAt: item.date || new Date().toISOString(),
+      })));
     } finally {
       setLoading(false);
     }
@@ -169,17 +234,60 @@ export default function Search() {
         </div>
 
         {/* Dynamic Search Box (Mac Spotlight Inspired Design) */}
-        <div className="bg-white rounded-3xl border border-slate-200/80 p-5 md:p-6 shadow-xl shadow-slate-100 space-y-6">
-          <form onSubmit={performSearch} className="flex gap-2">
+        <div className="bg-white rounded-3xl border border-slate-200/80 p-5 md:p-6 shadow-xl shadow-slate-100 space-y-6" ref={searchContainerRef}>
+          <form onSubmit={performSearch} className="flex gap-2 relative">
             <div className="relative flex-1">
               <input
                 type="text"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => handleQueryChange(e.target.value)}
+                onFocus={() => {
+                  if (query.trim().length >= 2) setShowSuggestions(true);
+                }}
                 placeholder={isRtl ? 'اكتب ما تبحث عنه هنا...' : 'Type tags, terms or titles...'}
                 className="w-full pl-10 pr-10 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-bold text-slate-800 text-xs md:text-sm shadow-inner placeholder:text-slate-400"
               />
               <SearchIcon size={16} className={`absolute top-4 text-slate-400 ${isRtl ? 'right-3.5' : 'left-3.5'}`} />
+
+              {/* Autocomplete Suggestions Popover */}
+              <AnimatePresence>
+                {showSuggestions && suggestions.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 5 }}
+                    className="absolute z-50 top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden divide-y divide-slate-100"
+                  >
+                    <div className="px-4 py-2.5 bg-slate-50 flex items-center justify-between text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                      <span className="flex items-center gap-1.5"><Sparkles size={12} className="text-blue-500" /> {isRtl ? 'اقتراحات البحث الفورية' : 'Instant Autocomplete Results'}</span>
+                      <span>FlexSearch</span>
+                    </div>
+                    {suggestions.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => {
+                          setShowSuggestions(false);
+                          navigate(item.url);
+                        }}
+                        className="w-full px-4 py-3 text-start hover:bg-blue-50/60 transition-colors flex items-center justify-between group cursor-pointer"
+                      >
+                        <div className="space-y-0.5 max-w-[80%]">
+                          <div className="text-xs font-bold text-slate-800 group-hover:text-blue-600 transition-colors truncate">
+                            {item.title}
+                          </div>
+                          <div className="text-[10px] text-slate-400 truncate">
+                            {item.description}
+                          </div>
+                        </div>
+                        <span className="text-[9px] font-black uppercase px-2 py-1 rounded-md bg-slate-100 text-slate-500 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                          {item.type}
+                        </span>
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
             <button
               type="submit"

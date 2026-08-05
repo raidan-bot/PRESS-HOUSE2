@@ -3,13 +3,14 @@ import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SEO } from '../components/common/SEO';
 import { Breadcrumbs } from '../components/common/Breadcrumbs';
-import { Calendar, User, ArrowLeft, Share2, Facebook, Twitter, Link as LinkIcon, Clock, Tag, ChevronRight, Star, ChevronLeft } from 'lucide-react';
+import { Calendar, User, ArrowLeft, Share2, Facebook, Twitter, Link as LinkIcon, Clock, Tag, ChevronRight, Star, ChevronLeft, FileDown, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Article } from '../types';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { api } from '../services/api';
 import NewsletterSignup from '../components/NewsletterSignup';
+import { exportContentToPdf } from '../utils/pdfExport';
 
 // Swiper for media slider
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -26,6 +27,30 @@ export default function ArticleDetail() {
   const isRtl = i18n.language === 'ar';
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
+  const [exportingPdf, setExportingPdf] = useState(false);
+
+  const handleExportPdf = async () => {
+    if (!article) return;
+    setExportingPdf(true);
+    try {
+      const cleanContent = content ? content.replace(/<[^>]+>/g, '\n\n') : '';
+      await exportContentToPdf({
+        title,
+        subtitle: article.category ? (isRtl ? `قسم: ${article.category}` : `Category: ${article.category}`) : undefined,
+        author: article.author || (isRtl ? 'بيت الصحافة - اليمن' : 'Press House - Yemen'),
+        date: new Date(article.createdAt).toLocaleDateString(isRtl ? 'ar-YE' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+        category: article.category,
+        content: cleanContent,
+        imageUrl: article.mainImage,
+        isRtl,
+        filename: `presshouse-article-${article.id}.pdf`
+      });
+    } catch (err) {
+      console.error('Failed to export PDF:', err);
+    } finally {
+      setExportingPdf(false);
+    }
+  };
 
   useEffect(() => {
     if (id) {
@@ -176,7 +201,7 @@ export default function ArticleDetail() {
 
               <div className="h-8 w-px bg-slate-800 hidden sm:block" />
 
-              <div className="flex items-center gap-6">
+              <div className="flex flex-wrap items-center gap-6">
                 <div className="flex items-center gap-2 text-slate-400 text-[10px] font-black uppercase tracking-widest">
                   <Calendar size={14} className="text-blue-500" />
                   {new Date(article.createdAt).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
@@ -185,6 +210,19 @@ export default function ArticleDetail() {
                   <Clock size={14} className="text-blue-500" />
                   {Math.ceil(content.split(' ').length / 200)} {isRtl ? 'دقائق قراءة' : 'min read'}
                 </div>
+                <button
+                  onClick={handleExportPdf}
+                  disabled={exportingPdf}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-black transition-all shadow-lg shadow-blue-900/50"
+                  title={isRtl ? 'تصدير كمحفظة PDF للقراءة أوفلاين' : 'Export as PDF'}
+                >
+                  {exportingPdf ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <FileDown size={14} />
+                  )}
+                  <span>{exportingPdf ? (isRtl ? 'جاري التصدير...' : 'Exporting...') : (isRtl ? 'تحميل PDF' : 'Export PDF')}</span>
+                </button>
               </div>
             </motion.div>
           </div>

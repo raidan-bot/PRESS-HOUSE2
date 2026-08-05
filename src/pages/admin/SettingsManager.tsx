@@ -80,15 +80,27 @@ export default function SettingsManager() {
               }
             }
           }
+          const safeParse = (val: any, fallback: any = { ar: '', en: '' }) => {
+            if (!val) return fallback;
+            if (typeof val === 'object') return val;
+            if (typeof val === 'string') {
+              try {
+                return JSON.parse(val);
+              } catch {
+                return { ar: val, en: val };
+              }
+            }
+            return fallback;
+          };
           setSettings({
             ...DEFAULT_SETTINGS,
             ...s,
-            siteName: typeof s.siteName === 'string' ? JSON.parse(s.siteName) : s.siteName,
-            socialLinks: typeof s.socialLinks === 'string' ? JSON.parse(s.socialLinks) : s.socialLinks,
-            address: typeof s.address === 'string' ? JSON.parse(s.address) : s.address,
-            seoTitle: typeof s.seoTitle === 'string' ? JSON.parse(s.seoTitle) : (s.seoTitle || DEFAULT_SETTINGS.seoTitle),
-            seoDescription: typeof s.seoDescription === 'string' ? JSON.parse(s.seoDescription) : (s.seoDescription || DEFAULT_SETTINGS.seoDescription),
-            seoKeywords: typeof s.seoKeywords === 'string' ? JSON.parse(s.seoKeywords) : (s.seoKeywords || DEFAULT_SETTINGS.seoKeywords),
+            siteName: safeParse(s.siteName, DEFAULT_SETTINGS.siteName),
+            socialLinks: safeParse(s.socialLinks, DEFAULT_SETTINGS.socialLinks),
+            address: safeParse(s.address, DEFAULT_SETTINGS.address),
+            seoTitle: safeParse(s.seoTitle, DEFAULT_SETTINGS.seoTitle),
+            seoDescription: safeParse(s.seoDescription, DEFAULT_SETTINGS.seoDescription),
+            seoKeywords: safeParse(s.seoKeywords, DEFAULT_SETTINGS.seoKeywords),
             maintenanceMode: s.maintenanceMode || 0,
             maintenanceMessage: maintenanceMessageParsed
           });
@@ -618,8 +630,7 @@ export default function SettingsManager() {
                     onChange={(e) => setSettings({ ...settings, aiProvider: e.target.value })}
                     className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none font-mono text-sm"
                   >
-                    <option value="openai">OpenAI Compatible (NVIDIA, Groq, etc.)</option>
-                    <option value="gemini">Google Gemini SDK</option>
+                    <option value="openai">Built-in AI Engine (NVIDIA, OpenAI, Groq)</option>
                   </select>
                 </div>
                 <div className="space-y-4">

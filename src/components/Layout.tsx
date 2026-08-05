@@ -47,15 +47,28 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         const res = await api.get('/api/settings');
         const data = res.data;
         
+        const parseSafeJson = (val: any) => {
+          if (!val) return null;
+          if (typeof val === 'object') return val;
+          if (typeof val === 'string') {
+            try {
+              return JSON.parse(val);
+            } catch {
+              return { ar: val, en: val };
+            }
+          }
+          return null;
+        };
+
         // Parse JSON fields
         const parsedData = {
           ...data,
-          siteName: data.siteName ? JSON.parse(data.siteName) : null,
-          seoTitle: data.seoTitle ? JSON.parse(data.seoTitle) : null,
-          seoDescription: data.seoDescription ? JSON.parse(data.seoDescription) : null,
-          seoKeywords: data.seoKeywords ? JSON.parse(data.seoKeywords) : null,
-          address: data.address ? JSON.parse(data.address) : null,
-          socialLinks: data.socialLinks ? JSON.parse(data.socialLinks) : null,
+          siteName: parseSafeJson(data.siteName),
+          seoTitle: parseSafeJson(data.seoTitle),
+          seoDescription: parseSafeJson(data.seoDescription),
+          seoKeywords: parseSafeJson(data.seoKeywords),
+          address: parseSafeJson(data.address),
+          socialLinks: parseSafeJson(data.socialLinks),
         };
         
         setSettings(parsedData);

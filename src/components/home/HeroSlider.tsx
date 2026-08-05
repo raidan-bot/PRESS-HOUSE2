@@ -30,15 +30,28 @@ export const HeroSlider: React.FC = () => {
           api.get('/api/settings')
         ]);
 
+        const parseSafeJson = (val: any, fallback: any = {}) => {
+          if (!val) return fallback;
+          if (typeof val === 'object') return val;
+          if (typeof val === 'string') {
+            try {
+              return JSON.parse(val);
+            } catch {
+              return { ar: val, en: val };
+            }
+          }
+          return fallback;
+        };
+
         const fetchedSlides = Array.isArray(slidesRes?.data) 
           ? slidesRes.data
             .map((s: any) => ({
               ...s,
-              title: typeof s.title === 'string' ? JSON.parse(s.title) : s.title,
-              subtitle: typeof s.subtitle === 'string' ? JSON.parse(s.subtitle) : s.subtitle,
-              description: typeof s.description === 'string' ? JSON.parse(s.description) : s.description,
-              primaryButton: typeof s.primaryButton === 'string' ? JSON.parse(s.primaryButton) : s.primaryButton,
-              secondaryButton: typeof s.secondaryButton === 'string' ? JSON.parse(s.secondaryButton) : s.secondaryButton,
+              title: parseSafeJson(s.title),
+              subtitle: parseSafeJson(s.subtitle),
+              description: parseSafeJson(s.description),
+              primaryButton: parseSafeJson(s.primaryButton),
+              secondaryButton: parseSafeJson(s.secondaryButton),
             }))
             .filter((s: HeroSlide) => s.isActive)
           : [];
@@ -138,9 +151,9 @@ export const HeroSlider: React.FC = () => {
           const s = settingsRes.data;
           setSettings({
             ...s,
-            siteName: typeof s.siteName === 'string' ? JSON.parse(s.siteName) : s.siteName,
-            socialLinks: typeof s.socialLinks === 'string' ? JSON.parse(s.socialLinks) : s.socialLinks,
-            address: typeof s.address === 'string' ? JSON.parse(s.address) : s.address,
+            siteName: parseSafeJson(s.siteName),
+            socialLinks: parseSafeJson(s.socialLinks),
+            address: parseSafeJson(s.address),
           });
         }
       } catch (error) {

@@ -64,7 +64,7 @@ export default function SocialCardGeneratorModal({ article, isOpen, onClose, isR
 
   if (!isOpen || !article) return null;
 
-  // AI Generation handler using server-side Gemini
+  // AI Generation handler using server-side Built-in AI Engine
   const handleAiGeneration = async () => {
     setIsAiLoading(true);
     try {

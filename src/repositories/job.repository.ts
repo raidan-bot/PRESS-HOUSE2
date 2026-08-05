@@ -30,4 +30,24 @@ export class JobRepository {
     const [result] = await pool.query('DELETE FROM jobs WHERE id = ?', [id]);
     return result;
   }
+
+  static async findAllApplications() {
+    const [rows] = await pool.query('SELECT * FROM job_applications ORDER BY createdAt DESC');
+    return rows;
+  }
+
+  static async createApplication(data: any) {
+    const fields = Object.keys(data).map(k => `"${k}"`).join(', ');
+    const placeholders = Object.keys(data).map(() => '?').join(', ');
+    const values = Object.values(data);
+    const [result] = await pool.query(`INSERT INTO job_applications (${fields}) VALUES (${placeholders})`, values);
+    return result;
+  }
+
+  static async updateApplication(id: string, data: any) {
+    const fields = Object.keys(data).map(key => `"${key}" = ?`).join(', ');
+    const values = Object.values(data);
+    const [result] = await pool.query(`UPDATE job_applications SET ${fields} WHERE id = ?`, [...values, id]);
+    return result;
+  }
 }

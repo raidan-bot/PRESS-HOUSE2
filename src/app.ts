@@ -76,6 +76,10 @@ if (!fs.existsSync(uploadDir)) {
 app.use('/uploads', express.static(uploadDir));
 
 import routes from './routes';
+app.get('/sitemap.xml', (req, res, next) => {
+  req.url = '/api/sitemap.xml';
+  routes(req, res, next);
+});
 app.use('/api', routes);
 
 // Centralized Error Handling Middleware (Phase 4)

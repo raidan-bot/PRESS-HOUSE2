@@ -61,12 +61,18 @@ async function setup() {
   if (rootPass) envContent = envContent.replace(/ROOT_ADMIN_PASSWORD=.*/g, `ROOT_ADMIN_PASSWORD=${rootPass}`);
   if (defaultAdminPass) envContent = envContent.replace(/DEFAULT_ADMIN_PASSWORD=.*/g, `DEFAULT_ADMIN_PASSWORD=${defaultAdminPass}`);
 
-  console.log('\nStep 3: إعدادات الذكاء الاصطناعي والبريد الإلكتروني (اختياري)');
-  const geminiKey = await question('مفتاح Gemini API Key (يمكن تركه فارغاً): ');
+  console.log('\nStep 3: إعداد قاعدة البيانات (PostgreSQL)');
+  const pgUrl = await question('رابط الاتصال بقاعدة بيانات PostgreSQL (أو اضغط Enter للافتراضي local): ') || 'postgresql://presshouse:presshouse_pass@localhost:5432/presshouse_db';
+  envContent = envContent.replace(/POSTGRES_URL=.*/g, `POSTGRES_URL=${pgUrl}`);
+
+  console.log('\nStep 4: إعدادات الذكاء الاصطناعي والبريد الإلكتروني (اختياري)');
+  const aiApiKey = await question('مفتاح API للذكاء الاصطناعي المدمج AI API Key (يمكن تركه فارغاً): ');
+  const aiBaseUrl = await question('رابط خادم الذكاء الاصطناعي AI Base URL (افتراضي NVIDIA): ') || 'https://integrate.api.nvidia.com/v1';
   const smtpUser = await question('حساب بريد SMTP (web@ph-ye.org): ') || 'web@ph-ye.org';
   const smtpPass = await question('كلمة مرور حساب البريد SMTP Password: ');
 
-  if (geminiKey) envContent = envContent.replace(/GEMINI_API_KEY=.*/g, `GEMINI_API_KEY=${geminiKey}`);
+  if (aiApiKey) envContent = envContent.replace(/AI_API_KEY=.*/g, `AI_API_KEY=${aiApiKey}`);
+  envContent = envContent.replace(/AI_BASE_URL=.*/g, `AI_BASE_URL=${aiBaseUrl}`);
   envContent = envContent.replace(/SMTP_USER=.*/g, `SMTP_USER=${smtpUser}`);
   if (smtpPass) envContent = envContent.replace(/SMTP_PASSWORD=.*/g, `SMTP_PASSWORD=${smtpPass}`);
   envContent = envContent.replace(/SMTP_FROM=.*/g, `SMTP_FROM="بيت الصحافة <${smtpUser}>"`);
